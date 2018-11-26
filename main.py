@@ -11,10 +11,11 @@ def ripemd160(x):
 def gen_and_compare(cmp: str, anywhere: bool):
     start_time = last_print = datetime.now()
     priv_key_init_byte = os.urandom(32)
-    priv_key_init_int = int.from_bytes(priv_key_init_byte, 'big')
+    priv_key_int = int.from_bytes(priv_key_init_byte, 'big')
     i=0
     while True:   # number of key pairs to generate`
-        priv_key = (priv_key_init_int + i).to_bytes(32, byteorder="big") # back to bytes
+        priv_key_int += 1
+        priv_key = (priv_key_int).to_bytes(32, byteorder="big") # back to bytes
         # generate private key , uncompressed WIF starts with "5"
         fullkey = '80' + binascii.hexlify(priv_key).decode()
         sha256a = hashlib.sha256(binascii.unhexlify(fullkey)).hexdigest()
@@ -30,6 +31,7 @@ def gen_and_compare(cmp: str, anywhere: bool):
         checksum = hashlib.sha256(hashlib.sha256(publ_addr_a).digest()).digest()[:4]
         publ_addr_b = base58.b58encode(publ_addr_a + checksum)
         i += 1
+
 
         try:
             WIF = WIF.decode()
@@ -60,8 +62,9 @@ if __name__ == "__main__":
 
     if len(args.search) == 0:
         parser.print_help()
+        exit(1)
     if args.search[0] not in "qrzp":
-        parser.print_help()
+        print("Not starting with q/r/z/p might take a long time")
     WIF, btc, bch, i = gen_and_compare(cmp=args.search, anywhere=args.position)
     print(f"Checked {i} addresses")
     print("Private Key         : " + WIF)
