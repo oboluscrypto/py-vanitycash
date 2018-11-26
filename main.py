@@ -75,13 +75,13 @@ if __name__ == "__main__":
     if any(ch in args.search for ch in ['o','i','1','b']):
         print("Characters 1/i/o/b not supported in Bech32", file=sys.stderr)
         exit(1)
-    nposs = 4 + 32**(len(args.search)-1)
+    nposs = 4 * 32**(len(args.search)-1)
     prob = 1./nposs
-    tests = [1,1e3,1e6,1e9,1e12]
+    tests = [1e2,1e4,1e6,1e8,1e10, 1e12]
     prob_after = [1 - ((1-prob) ** ev) for ev in tests]
     print(f"Vanity address with {nposs} possibilities requested. Prob after many tries is:")
     for tr,pr in zip(tests, prob_after):
-        print(f"Tries: {tr} -> {pr}")
+        print(f"Tries: {tr:.0} -> {pr}")
     WIF, btc, bch, i = gen_and_compare(cmp=args.search, anywhere=args.position, nposs=nposs)
     print(f"Checked {i} addresses")
     print("Private Key         : " + WIF)
