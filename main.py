@@ -31,9 +31,11 @@ def gen_and_compare(cmp: str, anywhere: bool):
         publ_addr_b = base58.b58encode(publ_addr_a + checksum)
         i += 1
 
-        if True:
+        try:
             WIF = WIF.decode()
             publ_addr_b = publ_addr_b.decode()
+        except AttributeError as e:
+            print(f"This part is python 3.7. Exception was: {e}. Skipping conversion")
 
         addr = cashaddress.convert.to_cash_address(publ_addr_b)
         if anywhere and cmp in addr[13:]:
