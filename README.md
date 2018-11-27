@@ -19,4 +19,13 @@ For now, just run multiple instances according to number of cores
 
 ## Requirements
 We thankfully use the following external libraries:  
-https://github.com/oskyk/cashaddress
+ * [cashaddress](https://github.com/oskyk/cashaddress)
+
+## Performance
+The program is not super fast since it has to derive a pubkey from a privkey and check the cashaddr against your search pattern.  
+
+The pubkey generation can be greatly accelerated if a C implementation is used. We support [libbtc](https://github.com/libbtc/libbtc). To use use it compile the program with CLI and give the path of ./bitcointool to this program. It will automatically accelerate the key generation.  
+
+Corei5-4300U:
+ * Pure python      per CPU core -> ~10 H/s
+ * C-implementation per CPU core -> ~100 H/s
