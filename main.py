@@ -3,8 +3,9 @@ import base58, ecdsa
 import cashaddress
 from datetime import datetime, timedelta
 import math
-from subprocess import check_output
 from typing import Optional
+
+from wraplibbtc import convert_priv_to_hex_pub
 
 _can_decode = True
 _d = hashlib.new('ripemd160')
@@ -31,7 +32,8 @@ def gen_and_compare(cmp: str, anywhere: bool, libbtc: Optional[str]):
 
         # get public key , uncompressed address starts with "1"
         if libbtc: #if libbtc path is given, accelerate with c code
-            publ_key = check_output([libbtc, "-command", "pubfrompriv" , "-p", WIF.decode()])[8:74].decode()
+            #print(convert_priv_to_hex_pub(WIF.decode()))
+            publ_key = convert_priv_to_hex_pub(WIF.decode())
         else:
             sk = ecdsa.SigningKey.from_string(priv_key, curve=ecdsa.SECP256k1)
             vk = sk.get_verifying_key()
@@ -70,7 +72,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--search", type=str, help=" e.g. qhi, starts with q/r/z/p", required=True)
     parser.add_argument("-p", "--position", type=int, help="1 if searchString can show up anywhere, 0 for in beginning", default=0)
-    parser.add_argument("-l", "--libbtcpath", type=str, help="to accelerate the pubkey generation with C code point the program to the path where bitcointool is located", default=None)
+    parser.add_argument("-l", "--uselibbtc", help="to accelerate the pubkey generation with C code enable this option and set env variable $libbtcpath", action="store_true")
     args = parser.parse_args()
 
     if len(args.search) == 0:
@@ -83,13 +85,12 @@ if __name__ == "__main__":
         exit(1)
     nposs = 4 * 32**(len(args.search)-1)
     prob = 1./nposs
-    tests = [1e2,1e4,1e6,1e8,1e10, 1e12]
+    tests = [1e2,1e3,1e4,1e5,1e6,1e7,1e8,1e10, 1e12]
     prob_after = [1 - ((1-prob) ** ev) for ev in tests]
     print(f"Vanity address with {nposs} possibilities requested. Prob after many tries is:")
     for tr,pr in zip(tests, prob_after):
         print(f"Tries: {tr:.0} -> {pr}")
-    path_to_libbtc = os.path.join(args.libbtcpath,"bitcointool") if args.libbtcpath else None
-    WIF, btc, bch, i = gen_and_compare(cmp=args.search, anywhere=args.position, libbtc=path_to_libbtc)
+    WIF, btc, bch, i = gen_and_compare(cmp=args.search, anywhere=args.position, libbtc=args.uselibbtc)
     print(f"Checked {i} addresses")
     print("Private Key         : " + WIF)
     print("Bitcoin Address     : " + btc)
