@@ -35,9 +35,8 @@ The pubkey generation can be greatly accelerated if a C implementation is used. 
  * compile libbtc with CLI
  * set environtment variable
    * `export libbtcpath="PATHTOLIBBTC"`
-   * `export LD_LIBRARY_PATH=$libbtcpath:$LD_LIBRARY_PATH`
-   * `export wrappath=PY-VANITYCASHPATH`
+   * `export LD_LIBRARY_PATH=$libbtcpath/.libs:$LD_LIBRARY_PATH`
  * now we need to compile a small wrapper around libbtc so python can use it with ctypes. In py-vanitycash
- `gcc -shared -fPIC -std=gnu99 wraplibbtc.c -I $libbtcpath/include/ -o wraplibbtc.so -L $libbtcpath/.libs/ -lbtc`
+ `gcc -shared -fPIC -std=gnu99 wraplibbtc.c -I $libbtcpath/include/ -o wrappedlibbtc.so -L $libbtcpath/.libs/ -lbtc`
  * Run the main program with the `-l` or `--uselibbtc` option
 
