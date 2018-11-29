@@ -1,11 +1,17 @@
 import ctypes
 import os
 
-libbtcpath = os.getenv("libbtcpath")
-if libbtcpath is None or len(libbtcpath) == 0:
-    print("Please set path to libbtc, e.g. in bash export libbtcpath=\"...\"")
-    exit(1)
-_lib = ctypes.CDLL(os.path.join(libbtcpath,'.libs/libbtc.so'))
+wrappath = "."
+fname = os.path.join(wrappath,'wrappedlibbtc.so')
+if not os.path.isfile(fname):
+    wrappath = os.getenv("wrappath")
+    if wrappath is None or len(wrappath) == 0:
+        print("Please set path to location of wrappedlibbtc.so that you should have created, e.g. in bash export wrappath=\"...\"")
+        exit(1)
+    fname = os.path.join(wrappath,'wrappedlibbtc.so')
+print("Opening dynamic library", fname)
+_lib = ctypes.CDLL(fname)
+
 _lib.btc_ecc_start.argtypes = ()
 _lib.get_pubkey.argtypes = (ctypes.c_char_p, ctypes.c_char_p)
 _lib.btc_ecc_start()

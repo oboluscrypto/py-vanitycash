@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 import math
 from typing import Optional
 
-from wraplibbtc import convert_priv_to_hex_pub
 
 _can_decode = True
 _d = hashlib.new('ripemd160')
@@ -15,7 +14,7 @@ def ripemd160(x):
     _d.update(x)
     return _d
 
-def gen_and_compare(cmp: str, anywhere: bool, libbtc: Optional[str]):
+def gen_and_compare(cmp: str, anywhere: bool, libbtc: bool):
     global _can_decode
     start_time = last_print = datetime.now()
     priv_key_init_byte = os.urandom(32)
@@ -83,6 +82,7 @@ if __name__ == "__main__":
     if any(ch in args.search for ch in ['o','i','1','b']):
         print("Characters 1/i/o/b not supported in Bech32", file=sys.stderr)
         exit(1)
+
     nposs = 4 * 32**(len(args.search)-1)
     prob = 1./nposs
     tests = [1e2,1e3,1e4,1e5,1e6,1e7,1e8,1e10, 1e12]
@@ -90,6 +90,9 @@ if __name__ == "__main__":
     print(f"Vanity address with {nposs} possibilities requested. Prob after many tries is:")
     for tr,pr in zip(tests, prob_after):
         print(f"Tries: {tr:.0} -> {pr}")
+
+    if args.uselibbtc:
+        from wraplibbtc import convert_priv_to_hex_pub
     WIF, btc, bch, i = gen_and_compare(cmp=args.search, anywhere=args.position, libbtc=args.uselibbtc)
     print(f"Checked {i} addresses")
     print("Private Key         : " + WIF)
