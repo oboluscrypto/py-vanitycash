@@ -19,4 +19,24 @@ For now, just run multiple instances according to number of cores
 
 ## Requirements
 We thankfully use the following external libraries:  
-https://github.com/oskyk/cashaddress
+ * [cashaddress](https://github.com/oskyk/cashaddress)
+
+## Performance
+The program is not super fast since it has to derive a pubkey from a privkey and check the cashaddr against your search pattern.  
+Vanitygen does about 60 times better than the python program.  
+
+Corei5-4300U:
+ * Pure python      per CPU core -> ~10 H/s
+ * C-implementation per CPU core -> ~5 kH/s
+ 
+### Accelerate with C library
+
+The pubkey generation can be greatly accelerated if a C implementation is used. We support [libbtc](https://github.com/libbtc/libbtc). To use use it
+ * compile libbtc with CLI
+ * set environtment variable
+   * `export libbtcpath="PATHTOLIBBTC"`
+   * `export LD_LIBRARY_PATH=$libbtcpath/.libs:$LD_LIBRARY_PATH`
+ * now we need to compile a small wrapper around libbtc so python can use it with ctypes. In py-vanitycash
+ `gcc -shared -fPIC -std=gnu99 wraplibbtc.c -I $libbtcpath/include/ -o wrappedlibbtc.so -L $libbtcpath/.libs/ -lbtc`
+ * Run the main program with the `-l` or `--uselibbtc` option
+
